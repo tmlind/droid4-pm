@@ -1,1 +1,10 @@
 Droid 4 scripts to configure PM features
+
+Copy the scripts/openrc/droid4-pm to /etc/init.d/droid4-pm and start
+it manually with:
+
+# /etc/init.d/droid4-pm start
+
+And if happy you can enable it on boot with:
+
+# openrc add droid4-pm default
