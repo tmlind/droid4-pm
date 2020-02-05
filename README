@@ -8,3 +8,7 @@ it manually with:
 And if happy you can enable it on boot with:
 
 # openrc add droid4-pm default
+
+To check the power management status periodically, you can do:
+
+# /etc/init.d/droid4-pm status

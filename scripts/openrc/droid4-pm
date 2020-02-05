@@ -86,9 +86,22 @@ enable_soc_idle_states() {
 	echo 1 > /sys/kernel/debug/pm_debug/enable_off_mode
 }
 
+check_status() {
+	  ret=$(grep ^core_pwrdm /sys/kernel/debug/pm_debug/count | cut -d',' -f3)
+	  uw=$(cat /sys/class/power_supply/battery/power_avg)
+	  mw=$((${uw} / 1000))
+	  einfo "SoC idle ${ret}, power consumption ${mw} mW"
+}
+
 start() {
 	check_module_blacklist
 	idle_uarts
 	set_loglevel 0
 	enable_soc_idle_states
+	sleep 1
+	check_status
+}
+
+status() {
+	 check_status
 }
