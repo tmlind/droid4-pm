@@ -1,0 +1,94 @@
+#!/sbin/openrc-run
+#
+# Start-up script to configure droid4 for power management
+#
+# Note that the qmi interface for the modem needs autoidle enabled,
+# please make sure you configured /etc/udev/rules.d/55-modem.rules:
+#
+# ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="22b8", \
+# ATTRS{idProduct}=="2a70", TEST=="power/control" ATTR{power/control}="auto"
+#
+# Please disable known problem modules for now by adding them into
+# /etc/modprobe.d/blacklist.conf:
+#
+# blacklist ehci-omap
+# blacklist hci_uart
+# blacklist omap_hdq
+#
+# To monitor power consumption, check the power consumption by reading
+# the micro-Watts with cat:
+#
+# /sys/class/power_supply/battery/power_avg
+#
+# To check no device drivers or busy timers are blocking SoC idle states,
+# check that the RET count keeps increasing when doing:
+#
+# grep ^core_pwrdm /sys/kernel/debug/pm_debug/count
+#
+
+name="droid4-pm"
+
+UART_IDLE_MS=3000
+
+depend() {
+        #need dev
+        #after hwdrivers
+	need eudev
+	after kmod
+}
+
+warn_if_module_loaded() {
+	module="${1}"
+	desc="${2}"
+
+	if lsmod | grep "${module}" > /dev/null; then
+		ewarn "Module ${module} blocks idle: ${desc}"
+	fi
+
+}
+
+check_module_blacklist() {
+	einfo "Checking for blacklisted modules blocking idle"
+	warn_if_module_loaded ehci-omap "Blocks idle, blacklist?"
+	warn_if_module_loaded omap_hdq "Seems to poll devices, blacklist?"
+	warn_if_module_loaded hci_uart "Blocks uart4 idle oopses on rmmod, blacklist?"
+	warn_if_module_loaded phy-cpcap-usb "Consumes extra 10mW, used by debug UART, unload?"
+	warn_if_module_loaded atmel_mxt_ts "Should be unloaded when screen is blanked"
+}
+
+set_loglevel() {
+	loglevel="${1}"
+
+	einfo "Setting kernel loglevel to ${loglevel}"
+	echo "${loglevel}" > /proc/sysrq-trigger
+}
+
+idle_uarts() {
+	einfo "Idling UARTs"
+
+	# Enable autosuspend
+	uarts=$(find /sys/bus/platform/devices/4*.serial/power/ -type d)
+	for uart in ${uarts}; do
+		echo ${UART_IDLE_MS} > ${uart}/autosuspend_delay_ms
+		echo enabled > ${uart}/wakeup
+		echo auto > ${uart}/control
+	done
+
+	# Configure wake-up from suspend
+	uarts=$(find /sys/class/tty/tty[SO]*/power/ -type d)
+	for uart in ${uarts}; do
+		echo enabled > ${uart}/wakeup
+	done
+}
+
+enable_soc_idle_states() {
+	einfo "Enabling deeper SoC idle states"
+	echo 1 > /sys/kernel/debug/pm_debug/enable_off_mode
+}
+
+start() {
+	check_module_blacklist
+	idle_uarts
+	set_loglevel 0
+	enable_soc_idle_states
+}
