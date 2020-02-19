@@ -8,6 +8,9 @@
 # ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="22b8", \
 # ATTRS{idProduct}=="2a70", TEST=="power/control" ATTR{power/control}="auto"
 #
+# The LCD needs to be blanked with xset -display :0 dpms force off and
+# unblanked with xset -display :0 dpms force on to idle DSS clocks.
+#
 # Please disable known problem modules for now by adding them into
 # /etc/modprobe.d/blacklist.conf:
 #
@@ -25,16 +28,36 @@
 #
 # grep ^core_pwrdm /sys/kernel/debug/pm_debug/count
 #
+# This script can also log the power usage status if run with droid4 status.
+# You can add it to root crontab to log power consumption once a minute:
+#
+# * * * * * /etc/init.d/droid4-pm status >> /var/log/droid4-pm 2>&1
+#
+# And the recent power consumption history can be monitored with:
+#
+# tail /var/log/droid4-pm
+#  * date=2020-02-19|time=16:40:00|idle=OFF:0,RET:27562|mW=61|blocking=none
+#  * date=2020-02-19|time=16:41:00|idle=OFF:0,RET:27962|mW=60|blocking=none
+#  * date=2020-02-19|time=16:42:00|idle=OFF:0,RET:28302|mW=58|blocking=none
+# ...
+#
 
 name="droid4-pm"
 
 UART_IDLE_MS=3000
 
+devmem=""
+rwmem=""
+blockers=""
+
 depend() {
-        #need dev
-        #after hwdrivers
-	need eudev
-	after kmod
+	if grep -i -e alpine /etc/os-release > /dev/null 2>&1; then
+		need dev
+		after hwdrivers
+	elif grep -i -e devuan /etc/os-release > /dev/null 2>&1; then
+		need eudev
+		after kmod
+	fi
 }
 
 warn_if_module_loaded() {
@@ -44,7 +67,6 @@ warn_if_module_loaded() {
 	if lsmod | grep "${module}" > /dev/null; then
 		ewarn "Module ${module} blocks idle: ${desc}"
 	fi
-
 }
 
 check_module_blacklist() {
@@ -86,11 +108,74 @@ enable_soc_idle_states() {
 	echo 1 > /sys/kernel/debug/pm_debug/enable_off_mode
 }
 
+init_reg_read() {
+	if busybox devmem > /dev/null 2>&1; then
+		devmem="busybox devmem"
+		return
+	fi
+
+	rwmem=$(which rwmem)
+}
+
+check_clkctrl() {
+	address="${1}"
+	idleval="${2}"
+	desc="${3}"
+
+	if [ "${devmem}" != "" ]; then
+		val=$("${devmem}" "${address}")
+	elif [ "${rwmem}" != "" ]; then
+		val=$("${rwmem}" "${address}" | cut -d' ' -f3)
+	else
+		return
+	fi
+
+	if [ "${val}" != "${idleval}" ]; then
+		echo -n "${desc}"
+	fi
+}
+
+update_blockers() {
+	address="${1}"
+	idleval="${2}"
+	desc="${3}"
+
+	device=$(check_clkctrl "${address}" "${idleval}" "${desc}")
+
+	if [ "${blockers}" = "" ] && [ "${device}" != "" ]; then
+		blockers="${device}"
+	elif [ "${device}" != "" ]; then
+		blockers="${blockers},${device}"
+	fi
+}
+
 check_status() {
-	  ret=$(grep ^core_pwrdm /sys/kernel/debug/pm_debug/count | cut -d',' -f3)
-	  uw=$(cat /sys/class/power_supply/battery/power_avg)
-	  mw=$((${uw} / 1000))
-	  einfo "SoC idle ${ret}, power consumption ${mw} mW"
+	idle=$(grep ^core_pwrdm /sys/kernel/debug/pm_debug/count | cut -d',' -f2,3)
+	uw=$(cat /sys/class/power_supply/battery/power_avg)
+	mw=$((${uw} / 1000))
+	if [ "${reg_read_cmd}" = "" ]; then
+		init_reg_read
+	fi
+
+	update_blockers 0x4a009540 0x00030000 uart1
+	update_blockers 0x4a009548 0x00030000 uart2
+	update_blockers 0x4a009550 0x00030000 uart3
+	update_blockers 0x4a009558 0x00030000 uart4
+	update_blockers 0x4a009358 0x00070000 ohci
+	update_blockers 0x4a009360 0x00070000 otg
+	update_blockers 0x4a009368 0x00030000 usbtll
+	update_blockers 0x4a009488 0x00030000 hdq1w
+	update_blockers 0x4a009100 0x00000003 dssst
+	update_blockers 0x4a009120 0x00070000 dss
+
+	if [ "${blockers}" = "" ]; then
+		blockers="none"
+	fi
+
+	date=$(date +%Y-%m-%d)
+	time=$(date +%H:%M:%S)
+
+	einfo "date=${date}|time=${time}|idle=${idle}|mW=${mw}|blocking=${blockers}"
 }
 
 start() {
@@ -103,5 +188,5 @@ start() {
 }
 
 status() {
-	 check_status
+	check_status
 }
