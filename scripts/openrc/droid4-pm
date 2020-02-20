@@ -153,7 +153,11 @@ check_status() {
 	idle=$(grep ^core_pwrdm /sys/kernel/debug/pm_debug/count | cut -d',' -f2,3)
 	uw=$(cat /sys/class/power_supply/battery/power_avg)
 	mw=$((${uw} / 1000))
-	cap=$(cat /sys/class/power_supply/battery/capacity)
+	if [ -f /sys/class/power_supply/battery/capacity ]; then
+		cap=$(cat /sys/class/power_supply/battery/capacity)
+	else
+		cap=0
+	fi
 	if [ "${reg_read_cmd}" = "" ]; then
 		init_reg_read
 	fi
@@ -176,7 +180,7 @@ check_status() {
 	date=$(date +%Y-%m-%d)
 	time=$(date +%H:%M:%S)
 
-	einfo "date=${date}|time=${time}|idle=${idle}|mW=${mw}|cap=${cap}|blocking=${blockers}"
+	echo "date=${date}|time=${time}|idle=${idle}|mW=${mw}|cap=${cap}|blocking=${blockers}"
 }
 
 start() {
@@ -184,8 +188,6 @@ start() {
 	idle_uarts
 	set_loglevel 0
 	enable_soc_idle_states
-	sleep 1
-	check_status
 }
 
 status() {
