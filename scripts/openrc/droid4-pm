@@ -172,6 +172,7 @@ check_status() {
 	update_blockers 0x4a009488 0x00030000 hdq1w
 	update_blockers 0x4a009100 0x00000003 dssst
 	update_blockers 0x4a009120 0x00070000 dss
+	update_blockers 0x4a009220 0x01070000 sgx
 
 	if [ "${blockers}" = "" ]; then
 		blockers="none"
