@@ -36,9 +36,9 @@
 # And the recent power consumption history can be monitored with:
 #
 # tail /var/log/droid4-pm
-#  * date=2020-02-19|time=16:40:00|idle=OFF:0,RET:27562|mW=61|blocking=none
-#  * date=2020-02-19|time=16:41:00|idle=OFF:0,RET:27962|mW=60|blocking=none
-#  * date=2020-02-19|time=16:42:00|idle=OFF:0,RET:28302|mW=58|blocking=none
+#  * d=2020-02-19|t=16:40:00|i=OFF:0,RET:27562|p=61|b=none
+#  * d=2020-02-19|t=16:41:00|i=OFF:0,RET:27962|p=60|b=none
+#  * d=2020-02-19|t=16:42:00|i=OFF:0,RET:28302|p=58|b=none
 # ...
 #
 
@@ -181,7 +181,7 @@ check_status() {
 	date=$(date +%Y-%m-%d)
 	time=$(date +%H:%M:%S)
 
-	echo "date=${date}|time=${time}|idle=${idle}|mW=${mw}|cap=${cap}|blocking=${blockers}"
+	echo "d=${date}|t=${time}|i=${idle}|p=${mw}|c=${cap}|b=${blockers}"
 }
 
 start() {
