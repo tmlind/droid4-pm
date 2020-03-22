@@ -1,4 +1,11 @@
 #!/sbin/openrc-run
+### BEGIN INIT INFO
+# Provides: droid4-pm
+# Required-Start: 
+# Required-Stop: 
+# Default-Start: 2 3 4 5
+# Default-Stop: 
+### END INIT INFO
 #
 # Start-up script to configure droid4 for power management
 #
