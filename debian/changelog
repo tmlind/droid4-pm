@@ -1,3 +1,9 @@
+droid4-powermanagement (1.0.2) unstable; urgency=low
+
+  * Revert LSB header addition for now
+
+ -- Merlijn Wajer <merlijn@wizzup.org>  Mon, 23 Mar 2020 19:13:38 +0100
+
 droid4-powermanagement (1.0.1) unstable; urgency=low
 
   * Add LSB headers to the initscript.
