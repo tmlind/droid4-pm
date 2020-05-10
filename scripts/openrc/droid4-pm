@@ -88,6 +88,12 @@ set_loglevel() {
 idle_uarts() {
 	einfo "Idling UARTs"
 
+	# Detach kernel serial console
+	consoles=$(find /sys/bus/platform/devices/4*.serial/ -name console)
+	for console in ${consoles}; do
+		echo N > ${console}
+	done
+
 	# Enable autosuspend
 	uarts=$(find /sys/bus/platform/devices/4*.serial/power/ -type d)
 	for uart in ${uarts}; do
