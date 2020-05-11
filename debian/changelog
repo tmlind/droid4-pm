@@ -1,3 +1,9 @@
+droid4-powermanagement (1.0.4) unstable; urgency=low
+
+  * Make sure serial doesn't block PM on Linux 5.7+
+
+ -- Merlijn Wajer <merlijn@wizzup.org>  Mon, 11 May 2020 10:43:29 +0200
+
 droid4-powermanagement (1.0.3) unstable; urgency=low
 
   * Just show NA when capacity is not yet available
