@@ -1,3 +1,9 @@
+droid4-powermanagement (1.0.3) unstable; urgency=low
+
+  * Just show NA when capacity is not yet available
+
+ -- Ivan J. <parazyd@dyne.org>  Mon, 30 Mar 2020 12:15:03 +0200
+
 droid4-powermanagement (1.0.2) unstable; urgency=low
 
   * Revert LSB header addition for now
