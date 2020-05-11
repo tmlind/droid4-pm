@@ -88,6 +88,12 @@ set_loglevel() {
 idle_uarts() {
 	einfo "Idling UARTs"
 
+	# Detach kernel serial console
+	consoles=$(find /sys/bus/platform/devices/4*.serial/ -name console)
+	for console in ${consoles}; do
+		echo N > ${console}
+	done
+
 	# Enable autosuspend
 	uarts=$(find /sys/bus/platform/devices/4*.serial/power/ -type d)
 	for uart in ${uarts}; do
@@ -154,7 +160,10 @@ check_status() {
 	uw=$(cat /sys/class/power_supply/battery/power_avg)
 	mw=$((${uw} / 1000))
 	if [ -f /sys/class/power_supply/battery/capacity ]; then
-		cap=$(cat /sys/class/power_supply/battery/capacity)
+		cap=$(cat /sys/class/power_supply/battery/capacity 2>/dev/null)
+		if [ "${cap}" = "" ]; then
+			cap="NA"
+		fi
 	else
 		cap=0
 	fi
