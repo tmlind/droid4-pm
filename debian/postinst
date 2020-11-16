@@ -5,6 +5,7 @@ if ! grep -q debugfs /etc/fstab; then
 # debugfs mount added by droid4-pm
 debugfs /sys/kernel/debug debugfs defaults 0 0
 EOF
+fi
 
 #DEBHELPER#
 
