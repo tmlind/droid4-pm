@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if ! grep -q debugfs /etc/fstab; then
+	cat <<EOF >> /etc/fstab
+# debugfs mount added by droid4-pm
+debugfs /sys/kernel/debug debugfs defaults 0 0
+EOF
+
+#DEBHELPER#
+
+exit 0
