@@ -1,3 +1,9 @@
+droid4-powermanagement (1.0.5) unstable; urgency=medium
+
+  * Add debugfs entry to fstab if it's not already there.
+
+ -- Ivan J. <parazyd@dyne.org>  Mon, 16 Nov 2020 17:23:45 +0100
+
 droid4-powermanagement (1.0.4) unstable; urgency=low
 
   * Make sure serial doesn't block PM on Linux 5.7+
