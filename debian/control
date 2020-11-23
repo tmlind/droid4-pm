@@ -1,0 +1,11 @@
+Source: droid4-powermanagement
+Section: droid4
+Priority: extra
+Maintainer: Merlijn Wajer <merlijn@wizzup.org>
+Build-Depends:
+ debhelper (>= 10),
+Standards-Version: 3.9.1
+
+Package: droid4-powermanagement
+Architecture: all
+Description: Init script for power management for Motorola Droid 4
