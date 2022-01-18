@@ -114,6 +114,11 @@ enable_soc_idle_states() {
 	echo 1 > /sys/kernel/debug/pm_debug/enable_off_mode
 }
 
+idle_misc() {
+	einfo "Idling other components"
+	echo 600  > /proc/sys/vm/stat_interval
+}
+
 init_reg_read() {
 	if busybox devmem > /dev/null 2>&1; then
 		devmem="busybox devmem"
@@ -198,6 +203,7 @@ start() {
 	idle_uarts
 	set_loglevel 0
 	enable_soc_idle_states
+	idle_misc
 }
 
 status() {
