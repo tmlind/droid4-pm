@@ -1,0 +1,41 @@
+droid4-powermanagement (1.0.6) unstable; urgency=medium
+
+  * Add more idling
+
+ -- Merlijn Wajer <merlijn@wizzup.org>  Wed, 30 Nov 2022 01:06:11 +0100
+
+droid4-powermanagement (1.0.5) unstable; urgency=medium
+
+  * Add debugfs entry to fstab if it's not already there.
+
+ -- Ivan J. <parazyd@dyne.org>  Mon, 16 Nov 2020 17:23:45 +0100
+
+droid4-powermanagement (1.0.4) unstable; urgency=low
+
+  * Make sure serial doesn't block PM on Linux 5.7+
+
+ -- Merlijn Wajer <merlijn@wizzup.org>  Mon, 11 May 2020 10:43:29 +0200
+
+droid4-powermanagement (1.0.3) unstable; urgency=low
+
+  * Just show NA when capacity is not yet available
+
+ -- Ivan J. <parazyd@dyne.org>  Mon, 30 Mar 2020 12:15:03 +0200
+
+droid4-powermanagement (1.0.2) unstable; urgency=low
+
+  * Revert LSB header addition for now
+
+ -- Merlijn Wajer <merlijn@wizzup.org>  Mon, 23 Mar 2020 19:13:38 +0100
+
+droid4-powermanagement (1.0.1) unstable; urgency=low
+
+  * Add LSB headers to the initscript.
+
+ -- Ivan J. <parazyd@dyne.org>  Sun, 22 Mar 2020 13:06:39 +0100
+
+droid4-powermanagement (1.0.0) unstable; urgency=low
+
+  * Initial Maemo Leste version
+
+ -- Merlijn Wajer <merlijn@wizzup.org>  Sun, 22 Mar 2020 11:36:54 +0100
